@@ -29,6 +29,8 @@ const io = new Server(httpServer, {
     }
 });
 
+app.options("*", cors());
+
 // Make io accessible to controllers
 app.set('io', io);
 
