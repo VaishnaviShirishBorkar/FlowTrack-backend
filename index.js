@@ -22,11 +22,22 @@ const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3001";
 const port = process.env.PORT || 5000;
 
 // Socket.IO setup
+// const io = new Server(httpServer, {
+//     cors: {
+//         origin: frontendUrl,
+//         credentials: true
+//     }
+// });
+
 const io = new Server(httpServer, {
-    cors: {
-        origin: frontendUrl,
-        credentials: true
-    }
+  cors: {
+    origin: [
+      "http://localhost:3001",
+      "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
 // app.options("*", cors());
@@ -41,20 +52,22 @@ app.use(express.json());
 //     credentials: true
 // }));
 
+// app.use(cors({
+//   origin: [
+//     "http://localhost:3001",
+//     "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app"
+//   ],
+//   credentials: true,
+// }));
+
 app.use(cors({
   origin: [
     "http://localhost:3001",
     "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app"
   ],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 }));
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 
 // Global request logger
 app.use((req, res, next) => {
