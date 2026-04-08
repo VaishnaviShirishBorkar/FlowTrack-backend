@@ -35,11 +35,26 @@ const io = new Server(httpServer, {
 app.set('io', io);
 
 app.use(express.json());
-app.use(cookieParser());
+// app.use(cookieParser());
+// app.use(cors({
+//     origin: frontendUrl,
+//     credentials: true
+// }));
+
 app.use(cors({
-    origin: frontendUrl,
-    credentials: true
+  origin: [
+    "http://localhost:3001",
+    "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app"
+  ],
+  credentials: true,
 }));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 // Global request logger
 app.use((req, res, next) => {
