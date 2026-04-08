@@ -18,56 +18,41 @@ dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3001";
+const allowedOrigins = (
+    process.env.ALLOWED_ORIGINS ||
+    "http://localhost:3000,http://localhost:3001"
+)
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 const port = process.env.PORT || 5000;
+const isAllowedOrigin = (origin = "") =>
+    allowedOrigins.includes(origin) ||
+    /^https:\/\/flow-track-.*\.vercel\.app$/.test(origin);
+const corsOptions = {
+    origin(origin, callback) {
+        // Allow non-browser requests and approved browser origins.
+        if (!origin || isAllowedOrigin(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+};
 
 // Socket.IO setup
-// const io = new Server(httpServer, {
-//     cors: {
-//         origin: frontendUrl,
-//         credentials: true
-//     }
-// });
-
 const io = new Server(httpServer, {
-  cors: {
-    origin: [
-      "http://localhost:3001",
-      "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app"
-    ],
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    cors: corsOptions
 });
-
-// app.options("*", cors());
 
 // Make io accessible to controllers
 app.set('io', io);
 
 app.use(express.json());
-// app.use(cookieParser());
-// app.use(cors({
-//     origin: frontendUrl,
-//     credentials: true
-// }));
-
-// app.use(cors({
-//   origin: [
-//     "http://localhost:3001",
-//     "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app"
-//   ],
-//   credentials: true,
-// }));
-
-app.use(cors({
-  origin: [
-    "http://localhost:3001",
-    "https://flow-track-hh6dyp9rq-vaishnavi-borkars-projects-1cd68495.vercel.app"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-}));
+app.use(cookieParser());
+app.use(cors(corsOptions));
 
 // Global request logger
 app.use((req, res, next) => {
